@@ -19,7 +19,7 @@ def calculate_pixel_distance(landmark1, landmark2, image_width, image_height):
     return np.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
 # Fungsi untuk memproses gambar dan menghitung pengukuran
-def process_image(image_path):
+def process_image(image_path):  
     image = cv2.imread(image_path)
     image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     results = pose.process(image_rgb)
