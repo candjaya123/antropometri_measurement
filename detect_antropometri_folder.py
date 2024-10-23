@@ -9,7 +9,7 @@ pose = mp_pose.Pose()
 mp_drawing = mp.solutions.drawing_utils
 
 # Folder yang berisi gambar
-folder_path = './Pengukuran'
+folder_path = './Raw_data'
 output_folder = './Hasil_Deteksi'
 
 # Fungsi untuk menghitung jarak pixel antara dua landmark
@@ -40,7 +40,7 @@ def process_image(image_path):
                                                 landmarks[mp_pose.PoseLandmark.RIGHT_HEEL.value],
                                                 image_width, image_height)
         height_pixel = (height_left + height_right) / 2
-        height_cm = convert_pixel_to_cm(height_pixel,0.0048,7.2197,2909)
+        height_cm = convert_pixel_to_cm(height_pixel,0,0.1689,32.619)
 
         # Hitung lebar tangan (rata-rata dari LEFT_SHOULDER ke LEFT_WRIST dan RIGHT_SHOULDER ke RIGHT_WRIST)
         left_hand_span = calculate_pixel_distance(landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value],
@@ -50,7 +50,7 @@ def process_image(image_path):
                                                    landmarks[mp_pose.PoseLandmark.RIGHT_WRIST.value],
                                                    image_width, image_height)
         hand_span_pixel = (left_hand_span + right_hand_span) / 2
-        hand_span_cm = convert_pixel_to_cm(hand_span_pixel, )
+        hand_span_cm = convert_pixel_to_cm(hand_span_pixel,0,0.1905,13.772)
 
         # Hitung lebar bahu (dari bahu kiri ke bahu kanan)
         shoulder_width_pixel = calculate_pixel_distance(landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value],
@@ -66,15 +66,33 @@ def process_image(image_path):
                                                       landmarks[mp_pose.PoseLandmark.RIGHT_KNEE.value],
                                                       image_width, image_height)
         thigh_length_pixel = (left_thigh_length + right_thigh_length) / 2
-        thigh_length_cm = convert_pixel_to_cm(thigh_length_pixel)
+        thigh_length_cm = convert_pixel_to_cm(thigh_length_pixel,0,0.1027,26.626)
+
+        # Hitung panjang kaki dari hip ke ankle (rata-rata kaki kiri dan kaki kanan)
+        left_leg_length = calculate_pixel_distance(landmarks[mp_pose.PoseLandmark.LEFT_HIP.value],
+                                                   landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value],
+                                                   image_width, image_height)
+        right_leg_length = calculate_pixel_distance(landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value],
+                                                    landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value],
+                                                    image_width, image_height)
+        leg_length_pixel = (left_leg_length + right_leg_length) / 2
+        leg_length_cm = convert_pixel_to_cm(leg_length_pixel,0,0.1343,44.799)
+
+        rotated_image = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
+        original_height, original_width = rotated_image.shape[:2]
+    
+         # Mengubah ukuran gambar menjadi setengah dari resolusi asli
+        half_size_image = cv2.resize(rotated_image, (original_width // 2, original_height // 2))
+
 
         # Tampilkan hasil pengukuran pada gambar
-        cv2.putText(image, f'Height: {height_cm:.2f} cm', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
-        cv2.putText(image, f'Hand Span: {hand_span_cm:.2f} cm', (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
-        cv2.putText(image, f'Shoulder Width: {shoulder_width_cm:.2f} cm', (10, 110), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
-        cv2.putText(image, f'Thigh Length: {thigh_length_cm:.2f} cm', (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+        cv2.putText(half_size_image, f'Height: {height_cm:.2f} cm', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+        cv2.putText(half_size_image, f'Hand Span: {hand_span_cm:.2f} cm', (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+        cv2.putText(half_size_image, f'Shoulder Width: {shoulder_width_cm:.2f} cm', (10, 110), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+        cv2.putText(half_size_image, f'Thigh Length: {thigh_length_cm:.2f} cm', (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+        cv2.putText(half_size_image, f'leg Length: {leg_length_cm:.2f} cm', (10, 190), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
 
-        return image
+        return half_size_image
     else:
         return None
 
