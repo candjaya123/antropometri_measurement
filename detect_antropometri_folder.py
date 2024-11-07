@@ -56,7 +56,7 @@ def process_image(image_path):
         shoulder_width_pixel = calculate_pixel_distance(landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value],
                                                         landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value], 
                                                         image_width, image_height)
-        shoulder_width_cm = convert_pixel_to_cm(shoulder_width_pixel)
+        shoulder_width_cm = convert_pixel_to_cm(shoulder_width_pixel,0,0.1022,20.933)
 
         # Hitung panjang paha (rata-rata paha kiri dan paha kanan)
         left_thigh_length = calculate_pixel_distance(landmarks[mp_pose.PoseLandmark.LEFT_HIP.value],
