@@ -3,6 +3,7 @@ import mediapipe as mp
 import numpy as np
 import os
 import csv
+from module import crop as cr
 
 # Inisialisasi Mediapipe Pose
 mp_pose = mp.solutions.pose
@@ -21,7 +22,7 @@ def calculate_pixel_distance(landmark1, landmark2, image_width, image_height):
 # Fungsi untuk memproses gambar dan menghitung pengukuran
 # Fungsi untuk memproses gambar dan menghitung pengukuran
 def process_image(image_path):  
-    image = cv2.imread(image_path)
+    image = image_path
     image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     results = pose.process(image_rgb)
     
@@ -75,6 +76,7 @@ def process_image(image_path):
         return None, None, None, None, None
 
 # File CSV untuk menyimpan hasil pengukuran
+calib_file_name = 'color.txt'
 csv_file = 'hasil_pengukuran.csv'
 
 # Buka file CSV untuk menulis data dengan pemisah ';' dan desimal ','
@@ -88,12 +90,23 @@ with open(csv_file, mode='w', newline='') as file:
         if filename.endswith(".jpg"):
             # Dapatkan path file gambar
             image_path = os.path.join(folder_path, filename)
+            frame = cv2.imread(image_path)
+
+            # Resize and rotate the frame if necessary
+            frame = cv2.resize(frame, (frame.shape[1] // 2, frame.shape[0] // 2))
+            frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+
+            min_hue, max_hue, min_saturation, max_saturation, min_value, max_value = cr.load_hsv_ranges(calib_file_name)
+            mask = cr.detect_color(frame, min_hue, max_hue, min_saturation, max_saturation, min_value, max_value)
+
+            # Crop the frame using the mask
+            crop_frame = cr.crop_image(frame, mask)
             
             # Ekstrak nama dari file (tanpa ekstensi) dan ubah ke lowercase
             name = os.path.splitext(filename)[0].lower()
-            
+
             # Proses gambar dan ambil pengukuran
-            height, hand_span, shoulder_width, thigh_length, leg_length = process_image(image_path)
+            height, hand_span, shoulder_width, thigh_length, leg_length = process_image(crop_frame)
             
             if height is not None:
                 # Konversi hasil ke format desimal dengan koma

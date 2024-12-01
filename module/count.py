@@ -1,16 +1,11 @@
 import cv2
 import mediapipe as mp
 import numpy as np
-import os
 
 # Inisialisasi Mediapipe Pose
 mp_pose = mp.solutions.pose
 pose = mp_pose.Pose()
 mp_drawing = mp.solutions.drawing_utils
-
-# Folder yang berisi gambar
-folder_path = './Raw_data'
-output_folder = './Hasil_Deteksi'
 
 # Fungsi untuk menghitung jarak pixel antara dua landmark
 def calculate_pixel_distance(landmark1, landmark2, image_width, image_height):
@@ -20,11 +15,12 @@ def calculate_pixel_distance(landmark1, landmark2, image_width, image_height):
 
 # Fungsi untuk mengonversi dari pixel ke cm menggunakan hasil regresi
 def convert_pixel_to_cm(pixel_value, a=0.002, b=0.5, c=1.0):
+    print(pixel_value)
     return a * (pixel_value ** 2) + b * pixel_value + c
 
-# Fungsi untuk memproses gambar dan menghitung pengukuran
+# Fungsi untuk memproses satu gambar dan menghitung pengukuran
 def process_image(image_path):
-    image = cv2.imread(image_path)
+    image = image_path
     image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     results = pose.process(image_rgb)
     
@@ -78,42 +74,16 @@ def process_image(image_path):
         leg_length_pixel = (left_leg_length + right_leg_length) / 2
         leg_length_cm = convert_pixel_to_cm(leg_length_pixel,0,0.1343,44.799)
 
-        rotated_image = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
-        original_height, original_width = rotated_image.shape[:2]
-    
-         # Mengubah ukuran gambar menjadi setengah dari resolusi asli
-        half_size_image = cv2.resize(rotated_image, (original_width // 2, original_height // 2))
 
 
         # Tampilkan hasil pengukuran pada gambar
-        cv2.putText(half_size_image, f'Height: {height_cm:.2f} cm', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
-        cv2.putText(half_size_image, f'Hand Span: {hand_span_cm:.2f} cm', (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
-        cv2.putText(half_size_image, f'Shoulder Width: {shoulder_width_cm:.2f} cm', (10, 110), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
-        cv2.putText(half_size_image, f'Thigh Length: {thigh_length_cm:.2f} cm', (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
-        cv2.putText(half_size_image, f'leg Length: {leg_length_cm:.2f} cm', (10, 190), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+        cv2.putText(image, f'Height: {height_cm:.2f} cm', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+        cv2.putText(image, f'Hand Span: {hand_span_cm:.2f} cm', (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+        cv2.putText(image, f'Shoulder Width: {shoulder_width_cm:.2f} cm', (10, 110), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+        cv2.putText(image, f'Thigh Length: {thigh_length_cm:.2f} cm', (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+        cv2.putText(image, f'leg Length: {leg_length_cm:.2f} cm', (10, 190), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
 
-        return half_size_image
+        return image
     else:
+        print("Pose tidak terdeteksi.")
         return None
-
-# Buat folder output jika belum ada
-if not os.path.exists(output_folder):
-    os.makedirs(output_folder)
-
-# Loop melalui semua file gambar di folder
-for filename in os.listdir(folder_path):
-    if filename.endswith(".jpg"):
-        # Dapatkan path file gambar
-        image_path = os.path.join(folder_path, filename)
-        
-        # Proses gambar dan ambil pengukuran
-        output_image = process_image(image_path)
-        
-        if output_image is not None:
-            # Simpan gambar dengan hasil deteksi
-            output_path = os.path.join(output_folder, filename)
-            cv2.imwrite(output_path, output_image)
-        else:
-            print(f"Pose tidak terdeteksi pada gambar: {filename}")
-
-print(f"Pengukuran selesai. Hasil disimpan di folder {output_folder}")
