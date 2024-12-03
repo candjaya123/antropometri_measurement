@@ -36,7 +36,7 @@ def process_image(image_path):
                                                 landmarks[mp_pose.PoseLandmark.RIGHT_HEEL.value],
                                                 image_width, image_height)
         height_pixel = (height_left + height_right) / 2
-        height_cm = convert_pixel_to_cm(height_pixel,0,0.1689,32.619)
+        height_cm = convert_pixel_to_cm(height_pixel,0,0.3487,28.055)
 
         # Hitung lebar tangan (rata-rata dari LEFT_SHOULDER ke LEFT_WRIST dan RIGHT_SHOULDER ke RIGHT_WRIST)
         left_hand_span = calculate_pixel_distance(landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value],
@@ -46,13 +46,13 @@ def process_image(image_path):
                                                    landmarks[mp_pose.PoseLandmark.RIGHT_WRIST.value],
                                                    image_width, image_height)
         hand_span_pixel = (left_hand_span + right_hand_span) / 2
-        hand_span_cm = convert_pixel_to_cm(hand_span_pixel,0,0.1905,13.772)
+        hand_span_cm = convert_pixel_to_cm(hand_span_pixel,0,0.4133,8.5026)
 
         # Hitung lebar bahu (dari bahu kiri ke bahu kanan)
         shoulder_width_pixel = calculate_pixel_distance(landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value],
                                                         landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value], 
                                                         image_width, image_height)
-        shoulder_width_cm = convert_pixel_to_cm(shoulder_width_pixel,0,0.1022,20.933)
+        shoulder_width_cm = convert_pixel_to_cm(shoulder_width_pixel,0,0.1024,31.811)
 
         # Hitung panjang paha (rata-rata paha kiri dan paha kanan)
         left_thigh_length = calculate_pixel_distance(landmarks[mp_pose.PoseLandmark.LEFT_HIP.value],
@@ -62,7 +62,7 @@ def process_image(image_path):
                                                       landmarks[mp_pose.PoseLandmark.RIGHT_KNEE.value],
                                                       image_width, image_height)
         thigh_length_pixel = (left_thigh_length + right_thigh_length) / 2
-        thigh_length_cm = convert_pixel_to_cm(thigh_length_pixel,0,0.1027,26.626)
+        thigh_length_cm = convert_pixel_to_cm(thigh_length_pixel,0,0.0082,49.244)
 
         # Hitung panjang kaki dari hip ke ankle (rata-rata kaki kiri dan kaki kanan)
         left_leg_length = calculate_pixel_distance(landmarks[mp_pose.PoseLandmark.LEFT_HIP.value],
@@ -72,7 +72,7 @@ def process_image(image_path):
                                                     landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value],
                                                     image_width, image_height)
         leg_length_pixel = (left_leg_length + right_leg_length) / 2
-        leg_length_cm = convert_pixel_to_cm(leg_length_pixel,0,0.1343,44.799)
+        leg_length_cm = convert_pixel_to_cm(leg_length_pixel,0,0.168,64.684)
 
 
 

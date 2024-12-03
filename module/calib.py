@@ -7,7 +7,7 @@ min_hue, max_hue = 0, 0
 min_saturation, max_saturation = 0, 0
 min_value, max_value = 0, 0
 kernel = np.ones((5, 5), np.uint8)
-file_name = 'color.txt'
+file_name = './data/color.txt'
 
 def adjust_rectangle(event, x, y, flags, param):
     """Callback to adjust the rectangle position and size."""

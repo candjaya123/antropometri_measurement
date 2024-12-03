@@ -76,8 +76,8 @@ def process_image(image_path):
         return None, None, None, None, None
 
 # File CSV untuk menyimpan hasil pengukuran
-calib_file_name = 'color.txt'
-csv_file = 'hasil_pengukuran.csv'
+calib_file_name = './data/color.txt'
+csv_file = './data/hasil_pengukuran.csv'
 
 # Buka file CSV untuk menulis data dengan pemisah ';' dan desimal ','
 with open(csv_file, mode='w', newline='') as file:
@@ -107,6 +107,7 @@ with open(csv_file, mode='w', newline='') as file:
 
             # Proses gambar dan ambil pengukuran
             height, hand_span, shoulder_width, thigh_length, leg_length = process_image(crop_frame)
+            # height, hand_span, shoulder_width, thigh_length, leg_length = process_image(frame)
             
             if height is not None:
                 # Konversi hasil ke format desimal dengan koma

@@ -14,7 +14,7 @@ class State(enum.Enum):
     RESULT = 4
 
 # Calibration file name
-calib_file_name = 'color.txt'
+calib_file_name = './data/color.txt'
 
 def Init():
     """
@@ -54,18 +54,14 @@ def Count(frame):
     Counting state. Processes the frame to detect and count objects.
     """
     # Load HSV ranges from calibration file
-    print("hai")
     min_hue, max_hue, min_saturation, max_saturation, min_value, max_value = cr.load_hsv_ranges(calib_file_name)
     mask = cr.detect_color(frame, min_hue, max_hue, min_saturation, max_saturation, min_value, max_value)
-    print("hai 2")
 
     # Crop the frame using the mask
     crop_frame = cr.crop_image(frame, mask)
-    print("hai 3")
 
     # Process the cropped image to detect objects
     output_image = cn.process_image(crop_frame)
-    print("hai 4")
     if output_image is not None:
         cv2.imshow('Hasil Pengukuran', output_image)
         output_path = './tes_out/hasil_deteksi.jpg'
@@ -76,48 +72,48 @@ def main():
     """
     Main function to run the state machine.
     """
-    # Load the image from file
-    image_path = './Raw_data/abi.jpg'  # Replace with the actual image path
-    frame = cv2.imread(image_path)
-    if frame is None:
-        print(f"Error: Could not read the image from {image_path}.")
+    # Capture video from the webcam
+    cap = cv2.VideoCapture(0)
+    if not cap.isOpened():
+        print("Error: Could not access the webcam.")
         return
-
-    # Resize and rotate the frame if necessary
-    frame = cv2.resize(frame, (frame.shape[1] // 2, frame.shape[0] // 2))
-    frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
-    calib_frame = frame.copy()
-    pose_frame = frame.copy()
-    count_frame = frame.copy()
 
     # Initialize state
     current_state = State.INIT
 
     # State machine logic
     while True:
-        match current_state:
-            case State.INIT:
-                print("State: INIT")
-                if Init():
-                    current_state = State.CALIB
-            case State.CALIB:
-                print("State: CALIB")
-                if Calib(calib_frame):
-                    current_state = State.POSE
-            case State.POSE:
-                print("State: POSE")
-                if ps.check_pose(pose_frame):
-                    current_state = State.COUNT
-            case State.COUNT:
-                print("State: COUNT")
-                Count(count_frame)
-                break  # Exit after counting
-            case _:
-                print("Unknown state encountered!")
-                break
+        ret, frame = cap.read()
+        if not ret:
+            print("Error: Could not read frame from webcam.")
+            break
+
+        # Resize the frame for consistent processing
+        # frame = cv2.resize(frame, (frame.shape[1] // 2, frame.shape[0] // 2))
+
+        # match current_state:
+        #     case State.INIT:
+        #         print("State: INIT")
+        #         if Init():
+        #             current_state = State.CALIB
+        #     case State.CALIB:
+        #         print("State: CALIB")
+        #         if Calib(frame):
+        #             current_state = State.POSE
+        #     case State.POSE:
+        #         print("State: POSE")
+        #         if ps.check_pose(frame):
+        #             current_state = State.COUNT
+        #     case State.COUNT:
+        #         print("State: COUNT")
+        #         Count(frame)
+        #         break  # Exit after counting
+        #     case _:
+        #         print("Unknown state encountered!")
+        #         break
 
         # Display the frame (optional)
-        # cv2.imshow('Processed Image', frame)
+        cv2.imshow('Live Feed', frame)
 
         # Exit handling
         key = cv2.waitKey(1)
@@ -126,6 +122,7 @@ def main():
             break
 
     # Clean up resources
+    cap.release()
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":

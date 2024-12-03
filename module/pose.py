@@ -110,8 +110,8 @@ def check_pose(frame):
         cv2.imshow('pose', frame)
 
     if Shoulder and Elbow and Knee and Leg:
-        print('FALSEEEEE')
-        return False
-    else:
         print('TRUUUUEEEEEE')
         return True
+    elif Shoulder == False and Elbow == False and Knee == False and Leg == False:
+        print('FALSEEEEE')
+        return False
