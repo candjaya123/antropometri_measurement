@@ -29,11 +29,9 @@ def Calib(frame):
 
     # Process the frame for calibration
     adjusted_frame, mask = cl.process_frame(frame)
-
     # Display frames
     cv2.imshow('Image Viewer', adjusted_frame)
     cv2.imshow('Binary Mask', mask)
-    
     # Handle key presses
     key = cv2.waitKey(1)
     if key & 0xFF == ord('t'):  # Exit calibration
@@ -52,9 +50,13 @@ def Count(frame):
 
     # Crop the frame using the mask
     crop_frame = cr.crop_image(frame, mask)
+    print(f'frame = {frame}')
+    print(f'crop_frame = {crop_frame}')
 
     # Process the cropped image to detect objects
     output_image = cn.process_image(crop_frame)
+    print(f'out = {output_image}')
+
     if output_image is not None:
         cv2.imshow('Hasil Pengukuran', output_image)
         output_path = './tes_out/hasil_deteksi.jpg'
@@ -64,7 +66,9 @@ def Count(frame):
 def main():
     global count_time
     # Capture video from the webcam
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1920)
     if not cap.isOpened():
         print("Error: Could not access the webcam.")
         return
@@ -80,6 +84,7 @@ def main():
             print("Error: Could not read frame from webcam.")
             break
         # Resize the frame for consistent processing
+        frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
         frame = cv2.resize(frame, (540, 960))
         calib_frame = frame.copy()
         pose_frame = frame.copy()
@@ -94,9 +99,14 @@ def main():
                 Calib(calib_frame)
             case State.POSE:
                 print("State: POSE")
-                if ps.check_pose(pose_frame):
-                    count_time = True
-                    break
+                if ps.check_pose(pose_frame) or key == ord('2'):
+                    current_state = State.COUNT
+            case State.COUNT:
+                cv2.imwrite(captured_filename, frame)
+                print("State: COUNT")
+                img = cv2.imread(captured_filename)
+                Count(img)
+                break
             case _:
                 print("Unknown state encountered!")
                 break
@@ -109,11 +119,6 @@ def main():
 
         if key == ord('1'):
             current_state = State.POSE
-
-        if count_time or key == ord('2'):
-            cv2.imwrite(captured_filename, frame)
-            img = cv2.imread(captured_filename)
-            Count(img)
     
         elif key == ord('q'):
             print("Quitting...")
