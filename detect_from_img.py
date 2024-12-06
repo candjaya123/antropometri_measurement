@@ -17,16 +17,10 @@ class State(enum.Enum):
 calib_file_name = './data/color.txt'
 
 def Init():
-    """
-    Initialization logic.
-    """
     print("Initialization complete.")
     return True
 
 def Calib(frame):
-    """
-    Calibration state. Allows user to adjust parameters and save settings.
-    """
     cv2.namedWindow('Image Viewer')
     cv2.setMouseCallback('Image Viewer', cl.adjust_rectangle)
 
@@ -50,9 +44,6 @@ def Calib(frame):
             return False
 
 def Count(frame):
-    """
-    Counting state. Processes the frame to detect and count objects.
-    """
     # Load HSV ranges from calibration file
     min_hue, max_hue, min_saturation, max_saturation, min_value, max_value = cr.load_hsv_ranges(calib_file_name)
     mask = cr.detect_color(frame, min_hue, max_hue, min_saturation, max_saturation, min_value, max_value)
@@ -69,9 +60,6 @@ def Count(frame):
         print(f"Output saved to {output_path}.")
 
 def main():
-    """
-    Main function to run the state machine.
-    """
     # Load the image from file
     image_path = './Raw_data/abi.jpg'  # Replace with the actual image path
     frame = cv2.imread(image_path)
@@ -99,15 +87,11 @@ def main():
             case State.CALIB:
                 print("State: CALIB")
                 if Calib(calib_frame):
-                    current_state = State.POSE
-            case State.POSE:
-                print("State: POSE")
-                if ps.check_pose(pose_frame):
                     current_state = State.COUNT
             case State.COUNT:
                 print("State: COUNT")
                 Count(count_frame)
-                break  # Exit after counting
+                break
             case _:
                 print("Unknown state encountered!")
                 break

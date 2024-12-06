@@ -7,16 +7,11 @@ from module import count as cn
 calib_file_name = './data/color.txt'
 
 def Init():
-    """
-    Initialization logic.
-    """
     print("Initialization complete.")
     return True
 
 def Count(output_path, image_path):
-    """
-    Counting state. Processes the image to detect and count objects.
-    """
+
     frame = cv2.imread(image_path)
     if frame is None:
         print(f"Error: Could not read the image from {image_path}.")
@@ -41,9 +36,6 @@ def Count(output_path, image_path):
         print(f"Output saved to {output_path}.")
 
 def main():
-    """
-    Main function to process images in a folder.
-    """
     # Folder containing images
     input_folder = './Raw_data'
     output_folder = './Hasil_Deteksi'
