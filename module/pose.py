@@ -50,10 +50,11 @@ def process_landmarks(landmarks, w, h):
 def check_pose(frame):
     global Shoulder, Elbow, Knee, Leg
     # Get frame dimensions
-    h, w = frame.shape[:2]
+    adjusted_frame = frame.copy()
+    h, w = adjusted_frame.shape[:2]
 
     # Recolor the image to RGB
-    image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    image_rgb = cv2.cvtColor(adjusted_frame, cv2.COLOR_BGR2RGB)
 
     # Set up MediaPipe Pose
     with mp_pose.Pose(static_image_mode=True, min_detection_confidence=0.5) as pose:
@@ -65,53 +66,53 @@ def check_pose(frame):
 
             # Use mp_drawing to draw the landmarks
             mp_drawing.draw_landmarks(
-                frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS,
+                adjusted_frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS,
                 mp_drawing.DrawingSpec(color=(245, 117, 66), thickness=2, circle_radius=2),
                 mp_drawing.DrawingSpec(color=(66, 245, 230), thickness=2, circle_radius=2)
             )
 
         if Lshoulder_slope < 80:
             Shoulder = False
-            cv2.putText(frame, f"bahu kiri kurang naik: {(80 - Lshoulder_slope):.2f}", (0, 70), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
+            cv2.putText(adjusted_frame, f"bahu kiri kurang naik: {(80 - Lshoulder_slope):.2f}", (0, 70), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
         elif Rshoulder_slope < 80:
             Shoulder = False
-            cv2.putText(frame, f"bahu kanan kurang naik: {(80 - Rshoulder_slope):.2f}", (0, 70), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
+            cv2.putText(adjusted_frame, f"bahu kanan kurang naik: {(80 - Rshoulder_slope):.2f}", (0, 70), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
         elif Lshoulder_slope > 80 and Rshoulder_slope > 80:
             Shoulder = True
-            cv2.putText(frame, f"bahu pas", (0, 70), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+            cv2.putText(adjusted_frame, f"bahu pas", (0, 70), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
         
         if Lelbow_slope < 165:
             Elbow = False
-            cv2.putText(frame, f"siku kiri kurang lurus: {(165 - Lelbow_slope):.2f}", (0, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
+            cv2.putText(adjusted_frame, f"siku kiri kurang lurus: {(165 - Lelbow_slope):.2f}", (0, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
         elif Relbow_slope < 165:
             Elbow = False
-            cv2.putText(frame, f"siku kanan kurang lurus: {(165 - Relbow_slope):.2f}", (0, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
+            cv2.putText(adjusted_frame, f"siku kanan kurang lurus: {(165 - Relbow_slope):.2f}", (0, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
         elif Lelbow_slope > 165 and Relbow_slope > 165:
             Elbow = True
-            cv2.putText(frame, f"siku pas", (0, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+            cv2.putText(adjusted_frame, f"siku pas", (0, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
 
         if Lknee_slope < 170:
             Knee = False
-            cv2.putText(frame, f"lutut kiri kurang lurus: {(170 - Lelbow_slope):.2f}", (0, 130), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
+            cv2.putText(adjusted_frame, f"lutut kiri kurang lurus: {(170 - Lelbow_slope):.2f}", (0, 130), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
         elif Rknee_slope < 170:
             Knee = False
-            cv2.putText(frame, f"lutut kanan kurang lurus: {(170 - Relbow_slope):.2f}", (0, 130), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
+            cv2.putText(adjusted_frame, f"lutut kanan kurang lurus: {(170 - Relbow_slope):.2f}", (0, 130), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
         elif Rknee_slope > 170 and Lknee_slope > 170:
             Knee = True
-            cv2.putText(frame, f"lutut pas", (0, 130), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+            cv2.putText(adjusted_frame, f"lutut pas", (0, 130), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
 
         if leg_distance < 40 :   
             Leg = False
-            cv2.putText(frame, f"lebarkan kaki", (0, 160), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
+            cv2.putText(adjusted_frame, f"lebarkan kaki", (0, 160), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
         elif leg_distance > 40: 
             Leg = True
-            cv2.putText(frame, f"lebar kaki pas", (0, 160), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
-
-        cv2.imshow('pose', frame)
+            cv2.putText(adjusted_frame, f"lebar kaki pas", (0, 160), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
 
     if Shoulder and Elbow and Knee and Leg:
         print('TRUUUUEEEEEE')
-        return True
+        return True, adjusted_frame
     elif Shoulder == False and Elbow == False and Knee == False and Leg == False:
         print('FALSEEEEE')
-        return False
+        return False, adjusted_frame
+    
+    return False, adjusted_frame

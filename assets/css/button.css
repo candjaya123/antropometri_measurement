@@ -1,0 +1,48 @@
+/* Calibrate state */
+QPushButton#calibrate_btn[state="calibrate"] {
+    background-color: #71B775;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    margin: 4px 2px;
+    border-radius: 15px;
+}
+
+QPushButton#calibrate_btn[state="calibrate"]:hover {
+    background-color: #9DCC9E;
+}
+
+QPushButton#calibrate_btn[state="detect"] {
+    background-color: #FF5733;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    margin: 4px 2px;
+    border-radius: 15px;
+}
+
+QPushButton#calibrate_btn[state="detect"]:hover {
+    background-color: #FF927A;
+}
+
+QPushButton#calibrate_btn[state="idle"] {
+    background-color: #FF5733;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    margin: 4px 2px;
+    border-radius: 15px;
+}
+
+QPushButton#calibrate_btn[state="idle"]:hover {
+    background-color: #FF927A;
+}

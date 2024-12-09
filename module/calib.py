@@ -9,6 +9,13 @@ min_value, max_value = 0, 0
 kernel = np.ones((5, 5), np.uint8)
 file_name = './data/color.txt'
 
+def adjust_rectangle_qt(x1, y1, x2, y2):
+    global rect_x, rect_y, rect_width, rect_height
+    rect_x = x1
+    rect_y = y1
+    rect_width = x2 - x1
+    rect_height = y2 - y1
+
 def adjust_rectangle(event, x, y, flags, param):
     """Callback to adjust the rectangle position and size."""
     global rect_x, rect_y, rect_width, rect_height
