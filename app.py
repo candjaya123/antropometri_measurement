@@ -12,7 +12,7 @@ from module import crop as cr
 from module import calib as cl
 from module import count as cn  
 
-ESP32_IP = "192.168.104.186"
+ESP32_IP = "192.168.152.78"
 ESP32_PORT = 4000
 # State machine states
 class State(enum.Enum):
@@ -63,7 +63,7 @@ class CameraApp(QMainWindow):
 
         self.current_state = State.INIT
 
-        self.capture = cv2.VideoCapture(0)
+        self.capture = cv2.VideoCapture(1)
         self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
         self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 1920)
 
@@ -217,9 +217,9 @@ class CameraApp(QMainWindow):
             self.height_lenght, self.hand_lenght, self.shoulder_lenght, self.thigh_lenght, self.leg_lenght = self.count_logic(img)
             self.height_label.setText(f"height: {self.height_lenght:.2f} cm")
             self.hand_label.setText(f"hand: {self.hand_lenght:.2f} cm")
-            self.shoulder_label.setText(f"height: {self.shoulder_lenght:.2f} cm")
-            self.thigh_label.setText(f"height: {self.thigh_lenght:.2f} cm")
-            self.leg_label.setText(f"height: {self.leg_lenght:.2f} cm")
+            self.shoulder_label.setText(f"shoulder: {self.shoulder_lenght:.2f} cm")
+            self.thigh_label.setText(f"thigh: {self.thigh_lenght:.2f} cm")
+            self.leg_label.setText(f"leg: {self.leg_lenght:.2f} cm")
 
             if self.height_lenght != 0 and self.hand_lenght != 0 and self.shoulder_lenght != 0 and self.thigh_lenght != 0 and self.leg_lenght != 0:
                 self.current_state = State.INIT
@@ -228,19 +228,19 @@ class CameraApp(QMainWindow):
         if self.current_state == State.CALIB and event.button() == Qt.LeftButton:
             self.drawing = True
             self.start_point = event.pos()
-            self.mouse_x1, self.mouse_y1 = self.start_point.x() - 300, self.start_point.y()
+            self.mouse_x1, self.mouse_y1 = self.start_point.x() - 310, self.start_point.y() - 10
 
     def mouseMoveEvent(self, event):
         if self.drawing and self.current_state == State.CALIB:
             self.end_point = event.pos()
-            self.mouse_x2, self.mouse_y2 = self.end_point.x() - 300, self.end_point.y()
+            self.mouse_x2, self.mouse_y2 = self.end_point.x() - 310, self.end_point.y() - 10
             self.update()
 
     def mouseReleaseEvent(self, event):
         if self.drawing and event.button() == Qt.LeftButton and self.current_state == State.CALIB:
             self.drawing = False
             self.end_point = event.pos()
-            self.mouse_x2, self.mouse_y2 = self.end_point.x() - 300, self.end_point.y()
+            self.mouse_x2, self.mouse_y2 = self.end_point.x() - 310, self.end_point.y() - 10
             # Process the drawn rectangle (if needed)
             # print(f"Rectangle from {self.start_point} to {self.end_point}")
 
