@@ -7,6 +7,12 @@ mp_pose = mp.solutions.pose
 pose = mp_pose.Pose()
 mp_drawing = mp.solutions.drawing_utils
 
+height_cm = 0
+hand_span_cm = 0
+shoulder_width_cm = 0
+thigh_length_cm = 0
+leg_length_cm = 0
+
 # Fungsi untuk menghitung jarak pixel antara dua landmark
 def calculate_pixel_distance(landmark1, landmark2, image_width, image_height):
     x1, y1 = int(landmark1[0] * image_width), int(landmark1[1] * image_height)
@@ -15,7 +21,7 @@ def calculate_pixel_distance(landmark1, landmark2, image_width, image_height):
 
 # Fungsi untuk mengonversi dari pixel ke cm menggunakan hasil regresi
 def convert_pixel_to_cm(pixel_value, a=0.002, b=0.5, c=1.0):
-    print(pixel_value)
+    # print(pixel_value)
     return a * (pixel_value ** 2) + b * pixel_value + c
 
 # Fungsi untuk memproses satu gambar dan menghitung pengukuran
@@ -74,8 +80,6 @@ def process_image(image_path):
         leg_length_pixel = (left_leg_length + right_leg_length) / 2
         leg_length_cm = convert_pixel_to_cm(leg_length_pixel,0,0.168,64.684)
 
-
-
         # Tampilkan hasil pengukuran pada gambar
         cv2.putText(image, f'Height: {height_cm:.2f} cm', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
         cv2.putText(image, f'Hand Span: {hand_span_cm:.2f} cm', (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
@@ -83,7 +87,4 @@ def process_image(image_path):
         cv2.putText(image, f'Thigh Length: {thigh_length_cm:.2f} cm', (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
         cv2.putText(image, f'leg Length: {leg_length_cm:.2f} cm', (10, 190), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
 
-        return image
-    else:
-        print("Pose tidak terdeteksi.")
-        return None
+    return image, height_cm, hand_span_cm, shoulder_width_cm, thigh_length_cm, leg_length_cm
