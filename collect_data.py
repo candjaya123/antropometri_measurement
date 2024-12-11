@@ -76,7 +76,7 @@ def process_image(image_path):
         return None, None, None, None, None
 
 # File CSV untuk menyimpan hasil pengukuran
-calib_file_name = './data/color.txt'
+calib_file_name = './color.txt'
 csv_file = './data/hasil_pengukuran.csv'
 
 # Buka file CSV untuk menulis data dengan pemisah ';' dan desimal ','
@@ -96,17 +96,17 @@ with open(csv_file, mode='w', newline='') as file:
             frame = cv2.resize(frame, (frame.shape[1] // 2, frame.shape[0] // 2))
             frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
-            min_hue, max_hue, min_saturation, max_saturation, min_value, max_value = cr.load_hsv_ranges(calib_file_name)
-            mask = cr.detect_color(frame, min_hue, max_hue, min_saturation, max_saturation, min_value, max_value)
+            # min_hue, max_hue, min_saturation, max_saturation, min_value, max_value = cr.load_hsv_ranges(calib_file_name)
+            # mask = cr.detect_color(frame, min_hue, max_hue, min_saturation, max_saturation, min_value, max_value)
 
-            # Crop the frame using the mask
-            crop_frame = cr.crop_image(frame, mask)
+            # # Crop the frame using the mask
+            # crop_frame = cr.crop_image(frame, mask)
             
             # Ekstrak nama dari file (tanpa ekstensi) dan ubah ke lowercase
             name = os.path.splitext(filename)[0].lower()
 
             # Proses gambar dan ambil pengukuran
-            height, hand_span, shoulder_width, thigh_length, leg_length = process_image(crop_frame)
+            height, hand_span, shoulder_width, thigh_length, leg_length = process_image(frame)
             # height, hand_span, shoulder_width, thigh_length, leg_length = process_image(frame)
             
             if height is not None:

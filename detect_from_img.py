@@ -14,7 +14,7 @@ class State(enum.Enum):
     RESULT = 4
 
 # Calibration file name
-calib_file_name = './data/color.txt'
+calib_file_name = './color.txt'
 
 def Init():
     print("Initialization complete.")
@@ -61,7 +61,7 @@ def Count(frame):
 
 def main():
     # Load the image from file
-    image_path = './Raw_data/abi.jpg'  # Replace with the actual image path
+    image_path = './Raw_data/Tiara.jpg'  # Replace with the actual image path
     frame = cv2.imread(image_path)
     if frame is None:
         print(f"Error: Could not read the image from {image_path}.")

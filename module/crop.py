@@ -40,5 +40,5 @@ def crop_image(main_frame, mask):
     
     if min_x < float('inf') and min_y < float('inf'):
         cv2.rectangle(main_frame, (min_x, min_y), (max_x, max_y), (0, 255, 255), 5)
-        return frame[min_y:max_y+70, min_x:max_x]
+        return frame[min_y:max_y+70, min_x - 20:max_x + 20]
     return None

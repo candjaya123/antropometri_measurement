@@ -47,7 +47,7 @@ def process_landmarks(landmarks, w, h):
     Rknee_slope = get.Angle(RHip,RKnee,RAnkle)
     leg_distance = get.Distance(LAnkle,RAnkle)
 
-def check_pose(frame):
+def check_pose(frame, button):
     global Shoulder, Elbow, Knee, Leg
     # Get frame dimensions
     adjusted_frame = frame.copy()
@@ -61,6 +61,12 @@ def check_pose(frame):
         # Process landmarks using MediaPipe Pose
         results = pose.process(image_rgb)
 
+        if button == False:
+            Shoulder = False
+            Elbow = False 
+            Knee = False
+            Leg = False
+        
         if results.pose_landmarks:
             process_landmarks(results.pose_landmarks.landmark, w, h)
 

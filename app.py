@@ -199,7 +199,7 @@ class CameraApp(QMainWindow):
             self.camera_label.setPixmap(QPixmap.fromImage(image))
 
         elif self.current_state == State.POSE:
-            condition, pose_frame = ps.check_pose(frame)
+            condition, pose_frame = ps.check_pose(frame, True)
             image = QImage(pose_frame, pose_frame.shape[1], pose_frame.shape[0], QImage.Format_BGR888)
             self.camera_label.setPixmap(QPixmap.fromImage(image))
             if condition:
