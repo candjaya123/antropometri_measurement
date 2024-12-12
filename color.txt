@@ -1,6 +1,6 @@
-min_hue=60
-max_hue=110
-min_saturation=37
-max_saturation=209
-min_value=16
-max_value=55
+min_hue=0
+max_hue=150
+min_saturation=0
+max_saturation=99
+min_value=52
+max_value=86
