@@ -63,7 +63,7 @@ class CameraApp(QMainWindow):
 
         self.current_state = State.INIT
 
-        self.capture = cv2.VideoCapture(1)
+        self.capture = cv2.VideoCapture(0)
         self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
         self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 1920)
 
@@ -113,16 +113,16 @@ class CameraApp(QMainWindow):
 
         # Buttons
         self.btn_init = QPushButton("INIT", self)
-        self.btn_calib = QPushButton("CALIB", self)
-        self.btn_save_calib = QPushButton("SAVE CALIB", self)
+        # self.btn_calib = QPushButton("CALIB", self)
+        # self.btn_save_calib = QPushButton("SAVE CALIB", self)
         self.btn_save_weight = QPushButton("SAVE WEIGHT", self)
         self.btn_pose = QPushButton("POSE", self)
         self.btn_count = QPushButton("COUNT", self)
         self.btn_quit = QPushButton("QUIT", self)
 
         self.btn_init.clicked.connect(self.init_state)
-        self.btn_calib.clicked.connect(self.calib_state)
-        self.btn_save_calib.clicked.connect(self.save_calib)
+        # self.btn_calib.clicked.connect(self.calib_state)
+        # self.btn_save_calib.clicked.connect(self.save_calib)
         self.btn_save_weight.clicked.connect(self.save_weight)
         self.btn_pose.clicked.connect(self.pose_state)
         self.btn_count.clicked.connect(self.count_state)
@@ -130,8 +130,8 @@ class CameraApp(QMainWindow):
 
         button_box = QVBoxLayout()
         button_box.addWidget(self.btn_init)
-        button_box.addWidget(self.btn_calib)
-        button_box.addWidget(self.btn_save_calib)
+        # button_box.addWidget(self.btn_calib)
+        # button_box.addWidget(self.btn_save_calib)
         button_box.addWidget(self.btn_save_weight)
         button_box.addWidget(self.btn_pose)
         button_box.addWidget(self.btn_count)
@@ -296,13 +296,13 @@ class CameraApp(QMainWindow):
 
     def count_logic(self, frame):
         # Load HSV ranges from calibration file
-        min_hue, max_hue, min_saturation, max_saturation, min_value, max_value = cr.load_hsv_ranges(calib_file_name)
-        mask = cr.detect_color(frame, min_hue, max_hue, min_saturation, max_saturation, min_value, max_value)
+        # min_hue, max_hue, min_saturation, max_saturation, min_value, max_value = cr.load_hsv_ranges(calib_file_name)
+        # mask = cr.detect_color(frame, min_hue, max_hue, min_saturation, max_saturation, min_value, max_value)
 
         # Crop the frame using the mask
-        crop_frame = cr.crop_image(frame, mask)
+        # crop_frame = cr.crop_image(frame, mask)
         # Process the cropped image to detect objects
-        output_image, height, hand, shoulder, thigh, leg  = cn.process_image(crop_frame)
+        output_image, height, hand, shoulder, thigh, leg  = cn.process_image(frame)
         if output_image is not None:
             # cv2.imshow('Hasil Pengukuran', output_image)
             output_path = './tes_out/hasil_deteksi.jpg'
