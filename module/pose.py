@@ -77,6 +77,17 @@ def check_pose(frame, button):
                 mp_drawing.DrawingSpec(color=(66, 245, 230), thickness=2, circle_radius=2)
             )
 
+        # face = results.pose_landmarks.landmark[mp_pose.PoseLandmark.NOSE.value].visibility > 0.8
+        # body = results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_SHOULDER.value].visibility > 0.8
+        # leg = results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_KNEE.value].visibility > 0.8
+        # ankle = results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_ANKLE.value].visibility > 0.8
+
+        # if face == False and body == False and leg == False and ankle == False:
+        #     Shoulder = False
+        #     Elbow = False 
+        #     Knee = False
+        #     Leg = False
+
         if Lshoulder_slope < 80:
             Shoulder = False
             cv2.putText(adjusted_frame, f"bahu kiri kurang naik: {(80 - Lshoulder_slope):.2f}", (0, 70), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)

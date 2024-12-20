@@ -43,7 +43,9 @@ def process_image(image_path):
                                                 landmarks[mp_pose.PoseLandmark.RIGHT_HEEL.value],
                                                 image_width, image_height)
         height_pixel = (height_left + height_right) / 2
-        height_cm = convert_pixel_to_cm(height_pixel,0,0.3317,34.244)
+        # height_cm = convert_pixel_to_cm(height_pixel,0,0.3317,34.244)
+        height_cm = convert_pixel_to_cm(height_pixel,0,0.330,34.244)
+        # height_cm = convert_pixel_to_cm(height_pixel,0,0.3321,30.055)
 
         # Hitung lebar tangan (rata-rata dari LEFT_SHOULDER ke LEFT_WRIST dan RIGHT_SHOULDER ke RIGHT_WRIST)
         left_hand_span = calculate_pixel_distance(landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value],
@@ -53,13 +55,13 @@ def process_image(image_path):
                                                    landmarks[mp_pose.PoseLandmark.RIGHT_WRIST.value],
                                                    image_width, image_height)
         hand_span_pixel = (left_hand_span + right_hand_span) / 2
-        hand_span_cm = convert_pixel_to_cm(hand_span_pixel,0,0.2951,26.529)
+        hand_span_cm = convert_pixel_to_cm(hand_span_pixel,0,0.2971,26.529)
 
         # Hitung lebar bahu (dari bahu kiri ke bahu kanan)
         shoulder_width_pixel = calculate_pixel_distance(landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value],
                                                         landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value], 
                                                         image_width, image_height)
-        shoulder_width_cm = convert_pixel_to_cm(shoulder_width_pixel,0,0.116,30.949)
+        shoulder_width_cm = convert_pixel_to_cm(shoulder_width_pixel,0,0.116,32.949)
 
         # Hitung panjang paha (rata-rata paha kiri dan paha kanan)
         left_thigh_length = calculate_pixel_distance(landmarks[mp_pose.PoseLandmark.LEFT_HIP.value],
@@ -94,4 +96,4 @@ def process_image(image_path):
         thigh_length_cm = 0
         leg_length_cm = 0
 
-    return image
+    return image, height_cm, hand_span_cm, shoulder_width_cm, thigh_length_cm, leg_length_cm
