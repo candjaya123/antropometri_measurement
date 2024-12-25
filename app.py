@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout,
 from PyQt5.QtCore import QTimer, Qt, pyqtSignal, QObject
 from PyQt5.QtGui import QImage, QPixmap, QPainter, QPen
 from module.style import AppStyle
+from module.mysql_client import MysqlClient, DatabaseData
 from module import pose as ps
 from module import crop as cr
 from module import calib as cl
@@ -67,6 +68,8 @@ class CameraApp(QMainWindow):
         self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
         self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 1920)
 
+        self.mysql_client = MysqlClient("192.168.1.101", "a", "test_password", "bodydata")
+
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_frame)
         self.timer.start(30)
@@ -119,6 +122,11 @@ class CameraApp(QMainWindow):
         self.btn_pose = QPushButton("POSE", self)
         self.btn_count = QPushButton("COUNT", self)
         self.btn_quit = QPushButton("QUIT", self)
+
+        self.save_btn = QPushButton("Save to Database")
+        self.save_btn.setObjectName("save_btn")
+        # self.save_btn.setVisible(False)
+        self.save_btn.pressed.connect(self.__save_db)
 
         self.btn_init.clicked.connect(self.init_state)
         # self.btn_calib.clicked.connect(self.calib_state)
@@ -314,6 +322,11 @@ class CameraApp(QMainWindow):
     def closeEvent(self, event):
         self.capture.release()
         cv2.destroyAllWindows()
+
+    def __save_db(self):
+        sending_data = DatabaseData(self.current_height, self.current_weight)
+        self.mysql_client.upload_to_mysql(sending_data, "body_size")
+        print(f"Saving to DB: {sending_data.height} m, {sending_data.weight} kg")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
