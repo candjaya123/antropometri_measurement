@@ -197,6 +197,12 @@ class CameraApp(QMainWindow):
         frame = cv2.resize(frame, (540, 960))
 
         if self.current_state == State.INIT:
+            self.height_lenght = 0
+            self.hand_lenght = 0
+            self.shoulder_lenght = 0
+            self.thigh_lenght = 0 
+            self.leg_lenght = 0
+            
             image = QImage(frame, frame.shape[1], frame.shape[0], QImage.Format_BGR888)
             self.camera_label.setPixmap(QPixmap.fromImage(image))
 
