@@ -2,12 +2,14 @@ import sys
 import cv2
 import enum
 import socket
+import datetime
 from threading import Thread
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QLabel, QWidget, QHBoxLayout, QSplitter, QSizePolicy, QGroupBox
 from PyQt5.QtCore import QTimer, Qt, pyqtSignal, QObject
 from PyQt5.QtGui import QImage, QPixmap, QPainter, QPen
+from PyQt5.QtWidgets import QLineEdit, QDateEdit
 from module.style import AppStyle
-from module.mysql_client import MysqlClient, DatabaseData
+from module.mysql_client import DatabaseHandler, DatabaseData
 from module import pose as ps
 from module import crop as cr
 from module import calib as cl
@@ -22,6 +24,7 @@ class State(enum.Enum):
     POSE = 2
     COUNT = 3
     END = 4
+    PUBLISH = 5
 
 # Calibration file name
 calib_file_name = './data/color.txt'
@@ -63,12 +66,13 @@ class CameraApp(QMainWindow):
         super().__init__()
 
         self.current_state = State.INIT
+        self.date = 0
 
         self.capture = cv2.VideoCapture(1)
         self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
         self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 1920)
 
-        self.mysql_client = MysqlClient("192.168.1.101", "a", "test_password", "bodydata")
+        self.mysql_client = DatabaseHandler("localhost", "root", "", "database-antropometri")
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_frame)
@@ -101,7 +105,7 @@ class CameraApp(QMainWindow):
         self.thigh_lenght = 0
         self.leg_lenght = 0
 
-        self.save = 0
+        self.weight_pub = 0
 
     def initUI(self):
         self.setWindowTitle("State Machine Camera App")
@@ -114,6 +118,29 @@ class CameraApp(QMainWindow):
         self.sidebar.setFixedWidth(300)
         sidebar_layout = QVBoxLayout()
 
+        # Input fields
+        input_group = QGroupBox("User Information")
+        input_layout = QVBoxLayout()
+        self.no_label = QLabel("No:")
+        self.no_input = QLineEdit()
+        self.name_label = QLabel("Name:")
+        self.name_input = QLineEdit()
+        self.born_label = QLabel("Date of Birth:")
+        self.born_input = QDateEdit()
+        self.born_input.setCalendarPopup(True)
+        self.born_input.setDisplayFormat("yyyy-MM-dd")
+
+        input_layout.addWidget(self.no_label)
+        input_layout.addWidget(self.no_input)
+        input_layout.addWidget(self.name_label)
+        input_layout.addWidget(self.name_input)
+        input_layout.addWidget(self.born_label)
+        input_layout.addWidget(self.born_input)
+
+        input_group.setLayout(input_layout)
+        sidebar_layout.addWidget(input_group)
+
+
         # Buttons
         self.btn_init = QPushButton("INIT", self)
         # self.btn_calib = QPushButton("CALIB", self)
@@ -123,10 +150,10 @@ class CameraApp(QMainWindow):
         self.btn_count = QPushButton("COUNT", self)
         self.btn_quit = QPushButton("QUIT", self)
 
-        self.save_btn = QPushButton("Save to Database")
+        self.save_btn = QPushButton("PUBLISH")
         self.save_btn.setObjectName("save_btn")
         # self.save_btn.setVisible(False)
-        self.save_btn.pressed.connect(self.__save_db)
+        self.save_btn.clicked.connect(self.__save_db)
 
         self.btn_init.clicked.connect(self.init_state)
         # self.btn_calib.clicked.connect(self.calib_state)
@@ -143,6 +170,7 @@ class CameraApp(QMainWindow):
         button_box.addWidget(self.btn_save_weight)
         button_box.addWidget(self.btn_pose)
         button_box.addWidget(self.btn_count)
+        button_box.addWidget(self.save_btn)
         button_box.addWidget(self.btn_quit)
 
         button_group = QGroupBox("Controls")
@@ -197,11 +225,11 @@ class CameraApp(QMainWindow):
         frame = cv2.resize(frame, (540, 960))
 
         if self.current_state == State.INIT:
-            self.height_lenght = 0
-            self.hand_lenght = 0
-            self.shoulder_lenght = 0
-            self.thigh_lenght = 0 
-            self.leg_lenght = 0
+            # self.height_lenght = 0
+            # self.hand_lenght = 0
+            # self.shoulder_lenght = 0
+            # self.thigh_lenght = 0 
+            # self.leg_lenght = 0
             
             image = QImage(frame, frame.shape[1], frame.shape[0], QImage.Format_BGR888)
             self.camera_label.setPixmap(QPixmap.fromImage(image))
@@ -238,6 +266,11 @@ class CameraApp(QMainWindow):
             if self.height_lenght != 0 and self.hand_lenght != 0 and self.shoulder_lenght != 0 and self.thigh_lenght != 0 and self.leg_lenght != 0:
                 self.current_state = State.INIT
 
+        # elif self.current_state == State.PUBLISH:
+        #     if self.__save_db():
+        #         self.current_state = State.INIT
+
+
     def mousePressEvent(self, event):
         if self.current_state == State.CALIB and event.button() == Qt.LeftButton:
             self.drawing = True
@@ -270,10 +303,10 @@ class CameraApp(QMainWindow):
 
     def update_weight_label(self, weight):
         if self.weight_saved == False:
-            self.save = weight
+            self.weight_pub = weight
             self.weight_label.setText(f"Weight: {weight} kg")
         else:
-            self.weight_label.setText(f"Weight: {self.save} kg")
+            self.weight_label.setText(f"Weight: {self.weight_pub} kg")
 
     def init_state(self):
         self.weight_saved = False
@@ -329,10 +362,28 @@ class CameraApp(QMainWindow):
         self.capture.release()
         cv2.destroyAllWindows()
 
+    def publish(self):
+        self.current_state = State.PUBLISH
+
     def __save_db(self):
-        sending_data = DatabaseData(self.current_height, self.current_weight)
-        self.mysql_client.upload_to_mysql(sending_data, "body_size")
-        print(f"Saving to DB: {sending_data.height} m, {sending_data.weight} kg")
+        self.date = datetime.datetime.now()
+        sending_data = DatabaseData(
+            no=self.no_input.text(),
+            nama=self.name_input.text(),
+            tanggal_lahir=self.born_input.text(),
+            tinggi_badan=int(self.height_lenght),
+            berat_badan=int(self.weight_pub),
+            panjang_tangan=int(self.hand_lenght),
+            panjang_kaki=int(self.leg_lenght),
+            panjang_paha=int(self.thigh_lenght),
+            lebar_paha=0,
+            lebar_dada=int(self.shoulder_lenght),
+            date=self.date
+        )
+        print(f"h:{self.height_lenght} w:{self.weight_pub} ")
+        if self.mysql_client.upload_to_mysql(sending_data, "pengukuran"):
+            return True
+        return False
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

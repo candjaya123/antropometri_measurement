@@ -74,7 +74,6 @@ class DatabaseHandler:
             # Simpan perubahan
             conn.commit()
             print("Data berhasil dimasukkan ke database.")
-            keluar = True
         except Error as e:
             print(f"Error saat mengunggah ke MySQL: {e}")
         finally:
@@ -84,5 +83,27 @@ class DatabaseHandler:
                     cursor.close()  # Pastikan cursor ditutup
                 conn.close()
                 print("Koneksi MySQL ditutup.")
-                return True
-        return False
+
+
+# Contoh Penggunaan
+if __name__ == "__main__":
+    # Konfigurasi koneksi database
+    db_handler = DatabaseHandler(host="localhost", user="root", password="", database="database-antropometri")
+
+    # Data contoh
+    sample_data = DatabaseData(
+        no=None,
+        nama="John Doe",
+        tanggal_lahir="1990-01-01",
+        tinggi_badan=175.5,
+        berat_badan=70.3,
+        panjang_tangan=60.2,
+        panjang_kaki=90.1,
+        panjang_paha=50.3,
+        lebar_paha=25.4,
+        lebar_dada=40.5,
+        date="2025-01-08"
+    )
+
+    # Unggah data
+    db_handler.upload_to_mysql(sample_data)
